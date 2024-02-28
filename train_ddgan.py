@@ -372,7 +372,10 @@ def train(rank, gpu, args):
                     grad_penalty.backward()
 
             # train with fake
-            latent_z = torch.randn(batch_size, nz, device=device)
+            if args.noz:
+                latent_z = torch.ones(batch_size, nz,device=device)
+            else:
+                latent_z = torch.randn(batch_size, nz, device=device)
             
          
             x_0_predict = netG(x_tp1.detach(), t, latent_z)
@@ -403,7 +406,10 @@ def train(rank, gpu, args):
             x_t, x_tp1 = q_sample_pairs(coeff, real_data, t)
                 
             
-            latent_z = torch.randn(batch_size, nz,device=device)
+            if args.noz:
+                latent_z = torch.ones(batch_size, nz,device=device)
+            else:
+                latent_z = torch.randn(batch_size, nz,device=device)
             
             
                 
@@ -574,6 +580,7 @@ if __name__ == '__main__':
                         help='rank of process in the node')
     parser.add_argument('--master_address', type=str, default='127.0.0.1',
                         help='address for master')
+    parser.add_argument('--noz', action='store_true', default=False, help='do not use stochastic z')
 
    
     args = parser.parse_args()
